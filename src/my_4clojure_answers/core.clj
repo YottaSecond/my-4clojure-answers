@@ -114,3 +114,156 @@
         (if (= (count seq) 2)
           (first seq)
           (recur (rest seq))))) [[1 2] [3 4]]) [1 2])
+
+;;21
+(=
+ ((fn
+    [seq n]
+    (loop [seq seq
+           i 0]
+      (if (= i n)
+        (first seq)
+        (recur (rest seq) (inc i))))) '(4 5 6 7) 2)
+ 6)
+
+(=
+ ((fn
+    [seq n]
+    (loop [seq seq
+           i 0]
+      (if (= i n)
+        (first seq)
+        (recur (rest seq) (inc i))))) [:a :b :c] 0)
+ :a)
+
+(=
+ ((fn
+    [seq n]
+    (loop [seq seq
+           i 0]
+      (if (= i n)
+        (first seq)
+        (recur (rest seq) (inc i))))) [1 2 3 4] 1)
+ 2)
+
+(=
+ ((fn
+    [seq n]
+    (loop [seq seq
+           i 0]
+      (if (= i n)
+        (first seq)
+        (recur (rest seq) (inc i))))) '([1 2] [3 4] [5 6]) 2)
+ [5 6])
+
+;;22
+(=
+ ((fn
+    [seq]
+    (loop [seq seq
+           i 0]
+      (if (empty? seq)
+        i
+        (recur (rest seq) (inc i)))))
+  '(1 2 3 3 1))
+5)
+
+(=
+ ((fn
+    [seq]
+    (loop [seq seq
+           i 0]
+      (if (empty? seq)
+        i
+        (recur (rest seq) (inc i)))))
+  "Hello World")
+11)
+
+(=
+ ((fn
+    [seq]
+    (loop [seq seq
+           i 0]
+      (if (empty? seq)
+        i
+        (recur (rest seq) (inc i)))))
+  [[1 2] [3 4] [5 6]])
+3)
+
+(=
+ ((fn
+    [seq]
+    (loop [seq seq
+           i 0]
+      (if (empty? seq)
+        i
+        (recur (rest seq) (inc i)))))
+  '(:a :b :c))
+3)
+
+;;this is sorta more consise, thought of it after doing 23
+;;but it feels weird throwing a variable away - there's probably a better way
+((fn
+   [seq]
+   (reduce (fn [i ignore]
+             (inc i)) 0 seq))
+ '(:a :b :c))
+
+;;23
+;;first working solution
+;;(I keep using similar solutions, I feel like I'm stuck in a loop
+;;(heheh I made a pun about loops (heheheh I'm using nested parenthetical statements while I'm commenting my lisp (heheheh sorry, this isn't that funny, I'll stop now)
+;;)))
+((fn
+   [seq]
+   (loop [seq seq
+          rev-seq '()]
+     (if (empty? seq)
+       rev-seq
+       (recur (rest seq) (cons (first seq) rev-seq))))
+ )
+ [1 2 3 4 5])
+
+;;more consise solution!
+(reduce #(cons %2 %1) '() [1 2 3 4 5])
+
+;;quixiafei's solution - lists are built using cons (new head for every insertion):
+(#(into () %) [1 2 3 4 5])
+(into () [1 2 3 4 5])
+
+(=
+ ((fn
+    [seq]
+    (reduce #(cons %2 %1) '() seq))
+  [1 2 3 4 5])
+[5 4 3 2 1])
+
+(=
+ ((fn
+    [seq]
+    (reduce #(cons %2 %1) '() seq))
+  (sorted-set 5 7 2 7))
+'(7 5 2))
+
+(=
+ ((fn
+    [seq]
+    (reduce #(cons %2 %1) '() seq))
+  [[1 2][3 4][5 6]])
+ [[5 6][3 4][1 2]])
+
+;;24 basically the canonical reduce example
+(= ((partial reduce +) [1 2 3]) 6)
+(= ((partial reduce +) (list 0 -2 5 5)) 8)
+(= ((partial reduce +) ) 8)
+
+;;25
+#(filter odd? %)
+
+;;26 uhhh well this isn't the simplest or best little thing but it does pass...
+(#(map (memoize (fn fib
+                   [n]
+                   (cond (= 1 n) 1
+                         (= 2 n) 1
+                         (< 2 n) (+ (fib (- n 1)) (fib (- n 2))))))
+       (map (partial + 1)(range %))) 20)
